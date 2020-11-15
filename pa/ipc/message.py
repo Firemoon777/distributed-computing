@@ -1,4 +1,4 @@
-from enum import IntEnum
+from enum import IntEnum, unique
 import struct
 
 PARENT_ID = 0
@@ -7,6 +7,7 @@ MAX_MESSAGE_LEN = 4096
 MESSAGE_MAGIC = 0xAFAF
 
 
+@unique
 class MessageType(IntEnum):
     STARTED = 1,
     DONE = 2,
@@ -16,6 +17,9 @@ class MessageType(IntEnum):
 
 
 class Message:
+    """
+    Класс, представляющий сообщение, которыми обмениваются процессы распределённой системы.
+    """
     magic: int
     message_type: MessageType
     local_time: int
@@ -31,6 +35,11 @@ class Message:
 
     @staticmethod
     def from_bytes(msg: bytes) -> 'Message':
+        """
+        Создаёт сообщение из массива байт
+        :param msg: байты сообщения
+        :return: экземпляр класса Message
+        """
         header = msg[:10]
         payload = msg[10:]
 
@@ -39,6 +48,10 @@ class Message:
         return Message(type, local_time, payload)
 
     def to_bytes(self) -> bytes:
+        """
+        Конвертирует сообщение в массив байт, пригодных для отправки
+        :return: массив байт
+        """
         fmt = f'>HHIH{self.payload_len}s'
         return struct.pack(fmt, self.magic, self.message_type, self.local_time, self.payload_len, self.payload)
 
