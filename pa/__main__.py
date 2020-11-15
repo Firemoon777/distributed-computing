@@ -5,15 +5,15 @@ import argparse
 from pa.ipc.message import PARENT_ID
 
 
-def parent_main():
+def parent_main(parent_id: int, total_processes: int) -> int:
     pass
 
 
-def child_main(child_id, total_processes):
+def child_main(child_id, total_processes) -> int:
     pass
 
 
-def main():
+def main() -> int:
     # Разбираем все аргументы стандартным способом
     parser = argparse.ArgumentParser(description='Runs distributed system with P separated processes with shared stdout')
     parser.add_argument('-p', help='Count of concurrent process', type=int)
@@ -34,4 +34,6 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    ret = main()
+    # В явном виде указываем код возврата
+    exit(ret)
