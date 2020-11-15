@@ -92,6 +92,9 @@ class Reactor:
             # Вычисляем таймаут для select, чтобы не выйти за предел времени реактора.
             # Время select ограничено сверху одной секундой на случай появления новых сокетов и обработчиков.
             select_timeout = min(timeout - (time.time() - start), 1)
+            if select_timeout < 0:
+                return
+
             # Запускаем select с таймаутом
             readable, writable, errored = select(read_list, write_list, [], select_timeout)
 
