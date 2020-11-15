@@ -1,19 +1,20 @@
 from socket import socket
 
+from pa.reactor.handler import EventHandler
 
-class EventHandler:
-    """
-    Абстрактный класс обработчика сообщений. При регистрации обработчика в реакторе указывается
-    типы событий, которые будут обрабатываться конкретным экземляром.
+
+class Connector(EventHandler):
     """
 
-    def handle_input(self, handle: socket) -> None:
+    """
+
+    def handle_input(self) -> None:
         """
         Вызывается, если обработчик зарегистрирован с EventType.READ
         """
         pass
 
-    def handle_output(self, handle: socket) -> None:
+    def handle_output(self) -> None:
         """
         Вызывается, если обработчик зарегистрирован с EventType.WRITE
         """

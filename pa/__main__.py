@@ -34,6 +34,17 @@ def main() -> int:
 
 
 if __name__ == '__main__':
-    ret = main()
+    from pa.reactor.reactor import Reactor
+    r = Reactor()
+
+    from pa.handlers.acceptor import Acceptor
+    h = Acceptor('127.0.0.1', 30000)
+
+    from pa.reactor.event_type import EventType
+    r.register_handler(h, EventType.READ)
+
+    r.handle_events(200)
+
+    #ret = main()
     # В явном виде указываем код возврата
-    exit(ret)
+    # exit(ret)
