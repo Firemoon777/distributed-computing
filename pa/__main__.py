@@ -37,13 +37,13 @@ if __name__ == '__main__':
     from pa.reactor.reactor import Reactor
     r = Reactor()
 
-    from pa.handlers.acceptor import Acceptor
-    h = Acceptor('127.0.0.1', 30000)
+    from pa.handlers.connector import Connector
+    h = Connector('127.0.0.1', 30000)
 
     from pa.reactor.event_type import EventType
-    r.register_handler(h, EventType.READ)
+    r.register_handler(h, EventType.READ | EventType.WRITE)
 
-    r.handle_events(200)
+    r.handle_events(2)
 
     #ret = main()
     # В явном виде указываем код возврата

@@ -67,7 +67,8 @@ class Reactor:
 
     def handle_events(self, timeout) -> None:
         """
-        Главный цикл реактора. Работает в течение timeout секунд
+        Главный цикл реактора. Работает в течение timeout секунд. Использует select, поддерживаемый на всех
+        операционных системах, включая Windows.
         :param timeout: время в секундах, в течение которого реактор будет ждать событий на сокетах
         :return: None
         """
@@ -101,4 +102,9 @@ class Reactor:
                     if entry['event_type'] & EventType.READ.value:
                         entry['handler'].handle_input(s)
 
-            print('select')
+            # Проходим по всем сокетам, которые готовы к записи
+            for s in writable:
+                # Передаем вопросы работы с этим сокетам соответствующим обработчикам
+                for entry in self._handler_map[s]:
+                    if entry['event_type'] & EventType.WRITE.value:
+                        entry['handler'].handle_output(s)

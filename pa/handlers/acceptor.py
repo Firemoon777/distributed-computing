@@ -42,7 +42,6 @@ class Acceptor(EventHandler):
         # Особенность слушающих сокетов в том, что на "оригинальном" сокете операция чтения
         # эквивалентна входящему запросу на подключение, поэтому проверяем, является ли сокет "оригинальным"
         if handle == self._sock:
-            print('accept')
             # Это подключение, необходимо его принять
             client, address = self._sock.accept()
             # Теперь у нас есть сокет, который связывает нас с конкертным клиентом.
@@ -52,7 +51,6 @@ class Acceptor(EventHandler):
             # События ACCEPT мы не прокидываем дальше, так что завершаемся
             return
 
-        print('input')
         if self._handler is not None:
             self._handler.handle_input(handle)
 
