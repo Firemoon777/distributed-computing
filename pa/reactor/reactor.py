@@ -13,10 +13,7 @@ class Reactor:
     """
 
     # Ассоциативный массив "сокет-массив обработчиков"
-    _handler_map: dict
-
-    def __init__(self):
-        self._handler_map = dict()
+    _handler_map = {}
 
     def __new__(cls):
         if not hasattr(cls, 'instance'):

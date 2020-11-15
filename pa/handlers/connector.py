@@ -38,7 +38,6 @@ class Connector(EventHandler):
         """
         Вызывается, если обработчик зарегистрирован с EventType.WRITE
         """
-        print('output')
         if self._handler is not None:
             self._handler.handle_output(handle)
 

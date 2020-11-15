@@ -3,10 +3,7 @@ class LamportTime:
     Класс представляет счётчик скалярного времени Лэмпорта
     """
 
-    _clock: int
-
-    def __init__(self):
-        self._clock = 0
+    _clock = 1
 
     def __new__(cls):
         if not hasattr(cls, 'instance'):

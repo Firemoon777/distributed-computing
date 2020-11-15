@@ -1,8 +1,10 @@
 import os
 import sys
 import argparse
+import time
 
 from pa.ipc.communication_manager import CommunicationManager
+from pa.ipc.logger import Logger
 from pa.ipc.message import PARENT_ID
 
 
@@ -10,6 +12,14 @@ def parent_main(process_id: int, total_processes: int) -> int:
     # Инициализируем подключения всех процессов между собой
     c = CommunicationManager()
     c.connect_sockets(process_id, total_processes)
+
+    c.receive_all_started()
+    Logger.log_received_started(process_id)
+
+    Logger.log_done(process_id)
+    c.send_done()
+    c.receive_all_done()
+    Logger.log_received_done(process_id)
 
     # Родитель ожидает завершения всех детей прежде, чем завершится сам
     for i in range(1, total_processes):
@@ -20,9 +30,21 @@ def parent_main(process_id: int, total_processes: int) -> int:
 
 
 def child_main(process_id, total_processes) -> int:
+    Logger.log_started(process_id, os.getpid(), os.getppid())
     # Инициализируем подключения всех процессов между собой
     c = CommunicationManager()
     c.connect_sockets(process_id, total_processes)
+
+    c.send_started()
+    c.receive_all_started()
+    Logger.log_received_started(process_id)
+
+    time.sleep(2)
+
+    Logger.log_done(process_id)
+    c.send_done()
+    c.receive_all_done()
+    Logger.log_received_done(process_id)
 
     return 0
 

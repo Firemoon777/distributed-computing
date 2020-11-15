@@ -1,5 +1,6 @@
 from enum import IntEnum, unique
 import struct
+from socket import socket
 
 PARENT_ID = 0
 MAX_PROCESS_ID = 100
@@ -26,7 +27,7 @@ class Message:
     payload_len: int
     payload: bytes
 
-    def __init__(self, msg_type: MessageType, local_time: int, payload=b''):
+    def __init__(self, msg_type: MessageType, local_time=0, payload=b''):
         self.magic = MESSAGE_MAGIC
         self.message_type = msg_type
         self.local_time = local_time
@@ -45,6 +46,23 @@ class Message:
 
         magic, type, local_time, payload_len = struct.unpack('>HHIH', header)
         assert magic == MESSAGE_MAGIC
+        return Message(type, local_time, payload)
+
+    @staticmethod
+    def from_socket(handle: socket) -> 'Message':
+        """
+        Считывает сообщение прямиком из сокета
+        :param handle: сокет
+        :return: сообщение
+        """
+        header = handle.recv(10)
+        if len(header) == 0:
+            return Message(None)
+        payload = b''
+        magic, type, local_time, payload_len = struct.unpack('>HHIH', header)
+        assert magic == MESSAGE_MAGIC
+        if payload_len != 0:
+            payload = handle.recv(payload_len)
         return Message(type, local_time, payload)
 
     def to_bytes(self) -> bytes:
