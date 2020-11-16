@@ -19,12 +19,9 @@ class CommunicationManager:
     между процессами и абстрагирует основную логику от реактора.
     """
 
-    _handlers: dict
+    _handlers = dict()
     _process_id: int
     _total_processes: int
-
-    def __init__(self):
-        self._handlers = dict()
 
     def __new__(cls):
         if not hasattr(cls, 'instance'):
@@ -118,3 +115,55 @@ class CommunicationManager:
         while self._handlers[self._process_id].done != self._total_processes:
             r.handle_events(0.1)
         r.handle_events(1)
+
+    def send_cs_request(self) -> None:
+        """
+        Отправляет всем сообщения о желании зайти в критическую секцию и инициализирует счётчик подтверждений
+        :return: None
+        """
+        # Отправляем сообщение
+        m = Message(MessageType.CS_REQUEST, self._process_id)
+        self.broadcast(m)
+
+        # Добавляем себя в очередь со временем отправки сообщения
+        self._handlers[self._process_id].queue.append((
+            LamportTime().get_time(), self._process_id
+        ))
+        # Сортриуем очередь
+        self._handlers[self._process_id].queue.sort()
+
+        # Сбрасываем счётчик ack, 1 -- сам себя одобрил
+        self._handlers[self._process_id].ack = 1
+
+    def wait_for_acks(self) -> None:
+        """
+        Блокирует выполнение основной логики до получения подтверждения от всех процесоов
+        :return: None
+        """
+        r = Reactor()
+        while self._handlers[self._process_id].ack != self._total_processes:
+            r.handle_events(0.1)
+
+    def wait_for_queue(self) -> None:
+        """
+        Блокирует выполнение, пока не наступит соответствующее место в очереди
+        :return: None
+        """
+        r = Reactor()
+        while self._handlers[self._process_id].queue[0][1] != self._process_id:
+            r.handle_events(0.1)
+
+    def send_cs_reply(self, dst: int) -> None:
+        m = Message(MessageType.CS_REPLY, self._process_id)
+        self.send(dst, m)
+
+    def send_cs_release(self) -> None:
+        """
+        Рассылает сообщение о выходе из критической секции и удаляет сеья из локальной очереди
+        :return: None
+        """
+        m = Message(MessageType.CS_RELEASE, self._process_id)
+        self.broadcast(m)
+
+        t, id = self._handlers[self._process_id].queue.pop(0)
+        assert id == self._process_id

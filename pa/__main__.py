@@ -6,6 +6,8 @@ import time
 from pa.ipc.communication_manager import CommunicationManager
 from pa.ipc.logger import Logger
 from pa.ipc.message import PARENT_ID
+from pa.lamport.mutex import LamportMutex
+from pa.util import lab_print
 
 
 def parent_main(process_id: int, total_processes: int) -> int:
@@ -16,7 +18,6 @@ def parent_main(process_id: int, total_processes: int) -> int:
     c.receive_all_started()
     Logger.log_received_started(process_id)
 
-    Logger.log_done(process_id)
     c.receive_all_done()
     Logger.log_received_done(process_id)
 
@@ -28,7 +29,7 @@ def parent_main(process_id: int, total_processes: int) -> int:
     return 0
 
 
-def child_main(process_id, total_processes) -> int:
+def child_main(process_id, total_processes, use_mutex: bool) -> int:
     Logger.log_started(process_id, os.getpid(), os.getppid())
     # Инициализируем подключения всех процессов между собой
     c = CommunicationManager()
@@ -38,7 +39,13 @@ def child_main(process_id, total_processes) -> int:
     c.receive_all_started()
     Logger.log_received_started(process_id)
 
-    time.sleep(2)
+    total = process_id*5
+    for it in range(1, total+1):
+        if use_mutex:
+            LamportMutex.lock()
+        lab_print(process_id, it, total)
+        if use_mutex:
+            LamportMutex.unlock()
 
     Logger.log_done(process_id)
     c.send_done()
@@ -63,7 +70,7 @@ def main() -> int:
         if pid == 0:
             # Этот код выполняется только ребёнком. После завершения полезной работы ребёнок должен завершиться.
             # Ребёнку необходимо знать свой идентификатор и общее количества процессов в системе.
-            return child_main(i, total_processes)
+            return child_main(i, total_processes, args.mutexl)
 
     # После создания всех детей родитель приступает к собственной полезной нагрузке.
     # Идентификатор родителя определён заранее и равен PARENT_ID.
