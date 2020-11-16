@@ -69,8 +69,10 @@ class ReadHandler(EventHandler):
             self.ack += 1
         elif m.message_type == MessageType.CS_RELEASE:
             # Процесс вышел из КС и просит нас удалить его из очереди
-            t, id = self.queue.pop(0)
-            assert m.src_id == id
+            for entry in self.queue:
+                if entry[1] == m.src_id:
+                    self.queue.remove(entry)
+                    break
         return 0
 
     def handle_output(self, handle: socket) -> None:

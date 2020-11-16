@@ -37,8 +37,8 @@ class Acceptor(EventHandler):
         # Привязываем его к адресу и порту
         self._sock.bind((host, port))
 
-        # Открываем сокет
-        self._sock.listen()
+        # Открываем сокет. Заранее ставим большой бэклог подключений для большой системы
+        self._sock.listen(1000)
 
     def __del__(self):
         for sock in self._client:
