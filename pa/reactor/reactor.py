@@ -1,4 +1,5 @@
 import time
+from multiprocessing.pool import ThreadPool
 from select import select
 from socket import socket
 
@@ -95,16 +96,36 @@ class Reactor:
             # Запускаем select с таймаутом
             readable, writable, errored = select(read_list, write_list, [], select_timeout)
 
+            # Готовим список работ для пула потоков
+            work = list()
+
             # Проходим по всем сокетам, которые готовы к чтению
             for s in readable:
                 # Передаем вопросы работы с этим сокетам соответствующим обработчикам
                 for entry in self._handler_map[s]:
                     if entry['event_type'] & EventType.READ.value:
-                        entry['handler'].handle_input(s)
+                        work.append((entry['handler'].handle_input, s))
+                        # entry['handler'].handle_input(s)
 
             # Проходим по всем сокетам, которые готовы к записи
             for s in writable:
                 # Передаем вопросы работы с этим сокетам соответствующим обработчикам
                 for entry in self._handler_map[s]:
                     if entry['event_type'] & EventType.WRITE.value:
-                        entry['handler'].handle_output(s)
+                        work.append((entry['handler'].handle_output, s))
+                        # entry['handler'].handle_output(s)
+
+            # Запускаем пул
+            pool = ThreadPool(8)
+
+            # Создаём функцию, которая по аргументу будет запускать нужную функцию нужного хэндлера
+            def runner(data: tuple):
+                func, arg = data
+                func(arg)
+
+            # Запускаем пул в работу
+            pool.map(runner, work)
+
+            # Дожидаемся, когда все завершатся
+            pool.close()
+            pool.join()
