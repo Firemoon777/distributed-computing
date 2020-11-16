@@ -62,6 +62,14 @@ def main() -> int:
     parser.add_argument('--mutexl', help='Enable mutual exclusion with Lamport''s algorithm', action='store_true')
     args = parser.parse_args(sys.argv[1:])
 
+    if args.p is None:
+        print('You should provide number of concurrent processes')
+        return 1
+
+    if args.p < 1:
+        print('Number of processes should be greater than 0')
+        return 1
+
     total_processes = args.p + 1
 
     # Создаём P процессов, нумеруя с 1. Каждый процесс представляет собой самостоятельный узел распределённой системы.
