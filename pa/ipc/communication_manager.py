@@ -10,7 +10,7 @@ from pa.reactor.event_type import EventType
 from pa.reactor.reactor import Reactor
 
 HOST = 'localhost'
-BASE_PORT = 50030
+BASE_PORT = 50010
 
 
 class CommunicationManager:
@@ -100,20 +100,21 @@ class CommunicationManager:
             self._handlers[i].add(msg)
 
     def send_started(self) -> None:
-        m = Message(MessageType.STARTED)
+        m = Message(MessageType.STARTED, self._process_id)
         self.broadcast(m)
 
     def receive_all_started(self) -> None:
         r = Reactor()
         while self._handlers[self._process_id].started != self._total_processes:
             r.handle_events(0.1)
+        r.handle_events(1)
 
     def send_done(self) -> None:
-        m = Message(MessageType.DONE)
+        m = Message(MessageType.DONE, self._process_id)
         self.broadcast(m)
 
     def receive_all_done(self) -> None:
         r = Reactor()
         while self._handlers[self._process_id].done != self._total_processes:
             r.handle_events(0.1)
-        r.handle_events(5)
+        r.handle_events(1)

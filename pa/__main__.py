@@ -17,7 +17,6 @@ def parent_main(process_id: int, total_processes: int) -> int:
     Logger.log_received_started(process_id)
 
     Logger.log_done(process_id)
-    c.send_done()
     c.receive_all_done()
     Logger.log_received_done(process_id)
 

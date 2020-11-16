@@ -7,15 +7,17 @@ class EventHandler:
     типы событий, которые будут обрабатываться конкретным экземляром.
     """
 
-    def handle_input(self, handle: socket) -> None:
+    def handle_input(self, handle: socket) -> int:
         """
-        Вызывается, если обработчик зарегистрирован с EventType.READ
+        Вызывается, если обработчик зарегистрирован с EventType.READ. Код возврата можно использовать в
+        цепочке обработчиков.
         """
         pass
 
-    def handle_output(self, handle: socket) -> None:
+    def handle_output(self, handle: socket) -> int:
         """
-        Вызывается, если обработчик зарегистрирован с EventType.WRITE
+        Вызывается, если обработчик зарегистрирован с EventType.WRITE. Код возврата можно использовать в
+        цепочке обработчиков.
         """
         pass
 

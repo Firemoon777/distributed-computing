@@ -59,7 +59,7 @@ class Reactor:
 
         # Если есть что удалять -- удаляем
         for entry in self._handler_map[handle]:
-            if entry.handler == handler and entry.event_type == event_type:
+            if entry['handler'] == handler and entry['event_type'] == event_type:
                 self._handler_map[handle].remove(entry)
 
     def handle_events(self, timeout) -> None:
