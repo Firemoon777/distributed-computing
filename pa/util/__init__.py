@@ -11,7 +11,7 @@ def concurrent_print(s: str, f=sys.stdout) -> None:
     :return: None
     """
     for c in s:
-        time.sleep(random() / 10)
+        time.sleep(random() / 100)
         print(c, end='', file=f, flush=True)
 
 
